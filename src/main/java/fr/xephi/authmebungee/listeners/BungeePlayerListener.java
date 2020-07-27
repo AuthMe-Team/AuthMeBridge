@@ -134,14 +134,14 @@ public class BungeePlayerListener implements Listener, SettingsDependent {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerConnectedToServer(final ServerSwitchEvent event) {
-        final ProxiedPlayer player = event.getPlayer();
-        final ServerInfo server = player.getServer().getInfo();
-        final AuthPlayer authPlayer = authPlayerManager.getAuthPlayer(player);
-        final boolean isAuthenticated = authPlayer != null && authPlayer.isLogged();
+        // If AutoLogin enabled, notify the server
+        if (isAutoLoginEnabled) {
+            final ProxiedPlayer player = event.getPlayer();
+            final ServerInfo server = player.getServer().getInfo();
+            final AuthPlayer authPlayer = authPlayerManager.getAuthPlayer(player);
+            final boolean isAuthenticated = authPlayer != null && authPlayer.isLogged();
 
-        if (isAuthenticated && isAuthServer(server)) {
-            // If AutoLogin enabled, notify the server
-            if (isAutoLoginEnabled) {
+            if (isAuthenticated && isAuthServer(server)) {
                 final ByteArrayDataOutput out = ByteStreams.newDataOutput();
                 out.writeUTF("AuthMe.v2");
                 out.writeUTF("perform.login");
