@@ -129,7 +129,41 @@ public class BungeePlayerListener implements Listener, SettingsDependent {
     }
 
     private boolean isAuthServer(ServerInfo serverInfo) {
-        return allServersAreAuthServers || authServers.contains(serverInfo.getName().toLowerCase());
+        if (allServersAreAuthServers)
+            return true;
+
+        for (String authServer : authServers) {
+            String pattern = createRegexFromGlob(authServer);
+            if (serverInfo.getName().matches(pattern))
+                return true;
+        }
+        
+        return false;
+    }
+
+    private String createRegexFromGlob(String glob) {
+        StringBuilder builder = new StringBuilder("^");
+        for(int i = 0; i < glob.length(); ++i) {
+            char c = glob.charAt(i);
+            switch(c) {
+                case '*': 
+                    builder.append(".*");
+                    break;
+                case '?':
+                    builder.append('.');
+                    break;
+                case '.': 
+                    builder.append("\\.");
+                    break;
+                case '\\': 
+                    builder.append("\\\\");
+                    break;
+                default: 
+                    builder.append(c);
+            }
+        }
+        builder.append('$');
+        return builder.toString();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
